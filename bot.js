@@ -1,4 +1,7 @@
-var env = require('node-env-file')
+const env = require('node-env-file')
+const Botkit = require('botkit')
+const debug = require('debug')('botkit:main')
+
 env(__dirname + '/.env')
 
 if (!process.env.clientId || !process.env.clientSecret) {
@@ -7,9 +10,6 @@ if (!process.env.clientId || !process.env.clientSecret) {
   console.log('~~~~~~~~~~')
   process.exit(1)
 }
-
-var Botkit = require('botkit')
-var debug = require('debug')('botkit:main')
 
 // Create the Botkit controller, which controls all instances of the bot.
 const controller = Botkit.slackbot({
@@ -20,11 +20,20 @@ const controller = Botkit.slackbot({
   scopes: ['bot']
 })
 
-controller.setupWebserver(port, (err, expressWebserver) => {
-  controller.createWebhookEndpoints(expressWebserver)
+controller.setupWebserver(port, (err, webserver) => {
+  if (err) {
+    console.error(err)
+    process.exit(1)
+  }
+  controller.createWebhookEndpoints(webserver)
 })
 
-
 controller.on('slash_command', (bot, message) => {
-  bot.replyPrivate(message, 'private message from balalunch')
+  switch (message.command) {
+    case '/balamuch':
+      bot.replyPrivate(message, `private message from balalunch`)
+      break
+    default:
+      bot.replyPrivate(message, `Sorry, I don't know this command`)
+  }
 })
