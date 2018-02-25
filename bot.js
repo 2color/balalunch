@@ -20,7 +20,9 @@ const controller = Botkit.slackbot({
   scopes: ['bot']
 })
 
-controller.setupWebserver(port, (err, webserver) => {
+const PORT = process.env.PORT || 80
+
+controller.setupWebserver(PORT, (err, webserver) => {
   if (err) {
     console.error(err)
     process.exit(1)
